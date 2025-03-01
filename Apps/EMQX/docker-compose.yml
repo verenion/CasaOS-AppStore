@@ -1,0 +1,99 @@
+name: emqx
+services:
+  emqx:
+    image: emqx:5.8.5
+    restart: unless-stopped
+    network_mode: host
+    container_name: emqx1
+    environment:
+    - "EMQX_NODE_NAME=emqx@node1.emqx.io"
+    - "EMQX_CLUSTER__DISCOVERY_STRATEGY=static"
+    - "EMQX_CLUSTER__STATIC__SEEDS=[emqx@node1.emqx.io]"
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    networks:
+      emqx-bridge:
+        aliases:
+        - node1.emqx.io
+    ports:
+      - 1883:1883
+      - 8083:8083
+      - 8084:8084
+      - 8883:8883
+      - 18083:18083 
+    x-casaos:
+      volumes:
+        - container: /opt/emqx/data
+          description:
+            en_us: Contains emqx data.
+        - container: /opt/emqx/logs
+          description:
+            en_us: Contains emqx logs.
+      ports:
+        - container: '1883'
+          description:
+            en_us: MQTT Port
+        - container: '8083'
+          description:
+            en_us: EMQX Port 1
+        - container: '8084'
+          description:
+            en_us: EMQX Port 2
+        - container: '8883'
+          description:
+            en_us: EMQX Port 3
+        - container: '18083'
+          description:
+            en_us: EMQX Port 4
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /opt/emqx/data
+      - type: bind
+        source: /DATA/AppData/$AppID/logs
+        target: /opt/emqx/logs  
+x-casaos:
+  architectures:
+    - amd64
+    - arm
+    - arm64
+  main: emqx
+  tagline:
+    en_us: EMQX Broker.
+  description:
+    en_us: EMQX Broker!
+  developer: verenion
+  author: verenion
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/WireGuardEasy/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/WireGuardEasy/icon.png
+  category: Network
+  tips:
+    before_install:
+      en_us: |
+        🔧 Settings
+
+        Default password: `casaos`
+
+        ⚠️ Warning!
+
+        You need to change at least change the mandatory parameter `WG_HOST` for this app to work properly.
+        It's value has to be a domain (or an IP address) that points to this server (accesible from WAN).
+
+        Same applies to the `WG_PORT` parameter. Change it to the port accessible from outside your LAN if it differs from the default 51820.
+      zh_cn: |
+        🔧 设置
+
+        默认密码： `casaos`
+
+        ⚠️ 警告！
+
+        您至少需要更改强制参数 `WG_HOST` 才能使本应用程序正常工作。
+        其值必须是指向本服务器的域（或 IP 地址）（可从广域网访问）。
+
+        同样，`WG_PORT` 参数也是如此。如果与默认的 51820 不同，请将其更改为局域网外可以访问的端口。
+  title:
+    en_us: EMQX
+  port_map: '18083'
