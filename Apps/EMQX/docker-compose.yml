@@ -64,6 +64,9 @@ services:
       - type: bind
         source: /DATA/AppData/$AppID/logs
         target: /opt/emqx/logs  
+networks:
+  emqx-bridge:
+    driver: bridge
 x-casaos:
   architectures:
     - amd64
